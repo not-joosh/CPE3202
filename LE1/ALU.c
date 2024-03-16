@@ -52,20 +52,21 @@ void displayStep(unsigned char A, unsigned char Q, unsigned char Q_N1, unsigned 
  *==============================================*/
 void main(void)
 {
-    ALU(136, 133, addition);            // 136 + 133 = 269 (Binary: 0000 0001 0000 1101)
-    ALU(255, 255, addition);            // 255 + 255 = 510 (Binary: 0000 0011 1111 1110)
-    ALU(136, 133, addition);            // 136 + 133 = 269 (Binary: 0000 0001 0000 1101)
-    ALU(10, 5, subtraction);            // 10 - 5 = 5 (Binary: 0000 0000 0000 0101)
-    ALU(15, 10, subtraction);           // 15 - 10 = 5 (Binary: 0000 0000 0000 0101)
-    ALU(192, 10, multiplication);       // 192 * 10 = 1920 (Binary: 0000 0111 1000 0000)
-    ALU(70, 2, multiplication);         // 70 * 2 = 140 (Binary: 0000 0000 1000 1100)
-    ALU(15, 3, multiplication);         // 15 * 3 = 45 (Binary: 0000 0000 0010 1101)
-    ALU(10, 10, AND);                   // 10 & 10 = 10 (Binary: 0000 0000 0000 1010)
-    ALU(10, 10, OR);                    // 10 | 10 = 10 (Binary: 0000 0000 0000 1010)
-    ALU(10, 10, NOT);                   // ~10 = 245 (Binary: 1111 1111 1111 1010)
-    ALU(10, 10, XOR);                   // 10 ^ 10 = 0 (Binary: 0000 0000 0000 0000)
-    ALU(10, 10, shift_left);            // 10 << 1 = 20 (Binary: 0000 0000 0001 0100)
-    ALU(10, 10, shift_right);           // 10 >> 1 = 5 (Binary: 0000 0000 0000 0101)
+    ALU(0b0111, 0b1100, multiplication);       // 12 + 10 = 22 (Binary: 0000 0000 0001 0110)
+    // ALU(136, 133, addition);            // 136 + 133 = 269 (Binary: 0000 0001 0000 1101)
+    // ALU(255, 255, addition);            // 255 + 255 = 510 (Binary: 0000 0011 1111 1110)
+    // ALU(136, 133, addition);            // 136 + 133 = 269 (Binary: 0000 0001 0000 1101)
+    // ALU(10, 5, subtraction);            // 10 - 5 = 5 (Binary: 0000 0000 0000 0101)
+    // ALU(15, 10, subtraction);           // 15 - 10 = 5 (Binary: 0000 0000 0000 0101)
+    // ALU(192, 10, multiplication);       // 192 * 10 = 1920 (Binary: 0000 0111 1000 0000)
+    // ALU(70, 2, multiplication);         // 70 * 2 = 140 (Binary: 0000 0000 1000 1100)
+    // ALU(15, 3, multiplication);         // 15 * 3 = 45 (Binary: 0000 0000 0010 1101)
+    // ALU(10, 10, AND);                   // 10 & 10 = 10 (Binary: 0000 0000 0000 1010)
+    // ALU(10, 10, OR);                    // 10 | 10 = 10 (Binary: 0000 0000 0000 1010)
+    // ALU(10, 10, NOT);                   // ~10 = 245 (Binary: 1111 1111 1111 1010)
+    // ALU(10, 10, XOR);                   // 10 ^ 10 = 0 (Binary: 0000 0000 0000 0000)
+    // ALU(10, 10, shift_left);            // 10 << 1 = 20 (Binary: 0000 0000 0001 0100)
+    // ALU(10, 10, shift_right);           // 10 >> 1 = 5 (Binary: 0000 0000 0000 0101)
 }
 
 /*===============================================
@@ -179,7 +180,7 @@ void boothsAlogrithm(unsigned char M, unsigned char Q) {  // Q Multiplier and M 
         unsigned char LSB_Q = Q & 0x01;
         unsigned char LSB_A = A & 0x01;
         // Check if the LSB of Q and Q_N1 are different
-        if(LSB_Q == 1 && Q_N1 == 0)     // 10
+        if(LSB_Q == 1 && Q_N1 == 0)     // 10 Q LSB_Q
             A = A + twosComp(M);
         else if(LSB_Q == 0 && Q_N1 == 1) // 01
             A = A + M;
