@@ -27,9 +27,13 @@ GLOBAL VARIABLES AND CONSTANTS
 ==================================*/
 unsigned char ioBuffer[32];
 unsigned char dataMemory[2048];
+unsigned char BUS = 0x00;  // 8 bit bus
+unsigned int ADDR = 0x00;  
+unsigned char CONTROL = 0x00; // 8 bit control signal
 bool IOM = 0;
 bool RW = 0;
 bool OE = 0;
+
 
 
 /*==================================
@@ -39,6 +43,7 @@ int CU();
 void initMemory();
 void displayData(unsigned int PC, unsigned int MAR, unsigned int IOAR, unsigned int IOBR);
 void MainMemory(void);
+void IOMemory(void);
 
 /*===============================================
 *   FUNCTION    :   MAIN
@@ -65,8 +70,14 @@ int main()
 int CU()
 {
     unsigned int PC=0, IR=0, MAR=0, MBR=0, IOAR=0, IOBR=0, inst_code=0, operand=0;
-    int result = 0,i;
+    int result = 0, i;
+    
+    // Stuff
+    unsigned int Fetch, IO, Memory, Increment;
+    // Instruction Code 4 | 3 | 2 | 1 | 0
+    // Instruction code is 5 bits wide... 
 
+    
     for (i=0; i<2048; i++){
         printf("**************************\n");
         printf("PC \t\t\t\t: 0x%03x \n", PC);
@@ -94,7 +105,7 @@ int CU()
 
             printf("Instruction \t: WM \n");
             printf("Writing information into memory....\n");
-            displayData(PC,MAR,IOAR, IOBR);
+            displayData(PC,MAR,IOAR,IOBR);
         }
         else if(inst_code==0x02)
         {
@@ -194,7 +205,7 @@ void initMemory()
 
 /*===============================================
 *   FUNCTION    :   MainMemory
-*   DESCRIPTION :   This function initializes the main memory of the CU.
+*   DESCRIPTION :   This function reads or writes from or onto MainMemory.
 *   ARGUMENTS   :   VOID
 *   RETURNS     :   VOID
  *==============================================*/
@@ -206,7 +217,26 @@ void MainMemory(void)
             BUS = dataMemory[ADDR];
         else if (RW == 1 && OE == 1) // memory write
         {
-            MainMemory[ADDR] = BUS;
+            dataMemory[ADDR] = BUS;
+        }        
+    }
+}
+
+/*===============================================
+*   FUNCTION    :   IOMemory
+*   DESCRIPTION :   This function reads or writes from or onto IOMemory.
+*   ARGUMENTS   :   VOID
+*   RETURNS     :   VOID
+ *==============================================*/
+void IOMemory(void)
+{
+    if(IOM == 0)
+    {
+        if(RW == 0 && OE == 1) // memory Read
+            BUS = ioBuffer[ADDR];
+        else if (RW == 1 && OE == 1) // memory write
+        {
+            ioBuffer[ADDR] = BUS;
         }        
     }
 }
