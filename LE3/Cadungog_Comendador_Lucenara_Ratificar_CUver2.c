@@ -15,7 +15,7 @@
 *   16 March, 2024: V2.1 - Adjusted Logical Errors in Comments, Added MainMemory Function
 *   17 March, 2024: V2.2 - Added IOMemory Function, Adjusted CU logic. Addressed Bugs. 
 *   17 March, 2024: V2.3 - Added displayDataData function, Adjusted CU logic. Addressed Bugs.
-*   17 March, 2024: V2.4 - Finalized Code.
+*   18 March, 2024: V2.4 - Finalized Code.
 ======================================================================================================*/
 
 /*==================================
@@ -76,12 +76,13 @@ int CU()
     int result = 0, i;
     
     // Stuff
-    unsigned int Fetch, IO, Memory, Increment;
+    bool Fetch, IO, Memory, Increment;
     // Instruction Code 4 | 3 | 2 | 1 | 0
     // Instruction code is 5 bits wide... 
 
     
-    for (i=0; i<2048; i++){
+    while(inst_code != 0x1F)
+    {
         printf("**************************\n");
         printf("PC \t\t\t\t: 0x%03x \n", PC);
 
