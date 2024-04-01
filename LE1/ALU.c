@@ -270,4 +270,3 @@ void printBin(int data, unsigned char data_width)
         printf("%d", (data >> i) & 0x01);
     }
 }
-
