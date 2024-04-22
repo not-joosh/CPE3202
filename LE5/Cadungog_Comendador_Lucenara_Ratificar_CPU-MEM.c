@@ -1,18 +1,13 @@
  /*======================================================================================================
-* FILE        : Cadungog_Comendador_Lucenara_Ratificar_ALU-CU.c
+* FILE        : Cadungog_Comendador_Lucenara_Ratificar_CPU-MEM.c
 * AUTHOR      : Josh Ratificar (Hardware Lead)
 *               Ben Cesar Cadungog (Software Lead)
 *               Jeddah Laine Luceñara  (Research Lead)
 *               Harold Marvin Comendador (Documentation Lead)
-* DESCRIPTION : This program simulates the Arithmetic Logic Unit (ALU) combined with the Control Unit.
+* DESCRIPTION : This program simulates CPU and Memory operations. 
 * COPYRIGHT   : 17 March, 2024
 * REVISION HISTORY:
-*   24 February, 2024: V1.0 - File Created
-*   25 February, 2024: V1.1 - Added ALU function, Added Booth's Algorithm, Added setFlags function
-*   28 February, 2024: V1.2 - Revised Declaration from ACC being local to global as instructed in the LE. Added more Arithemetic Cases.
-*   17 March, 2024: V2.0 - Renamed ALU to ALUVer2, Addressed logical errors in comments.
-*   1 April, 2024: V3.0 - Added Control Unit Functionality with ALU, and addressed techincal errors.
-*                         As well implementedthe busses and initMemory.
+*   20 April, 2024: V1.0 - File Created
 ======================================================================================================*/
 /*=============================================== 
  *   HEADER FILES
@@ -100,6 +95,7 @@ int CU()
     bool Fetch, IO, Memory, Increment;
     // Instruction Code 4 | 3 | 2 | 1 | 0
     // Instruction code is 5 bits wide...
+    int row, col, cs;
     PC = 0x000;
 
     MainMemory();
@@ -131,6 +127,11 @@ int CU()
 
         if(Fetch == 1)
         {
+            /* decoding address data */
+            col = ADDR & 0x001F;
+            row = (ADDR >> 5) & 0x001F;
+            cs = ADDR >> 10; 
+
             IR = (int) BUS; // load instruction to IR
             IR = IR << 8; // shift IR 8 bits to the left
             PC++; // points to the lower byte

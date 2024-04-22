@@ -42,7 +42,7 @@ unsigned char twosComp(unsigned char operand);
 void printBin(int data, unsigned char data_width);
 void setFlags(unsigned int ACC);
 void boothsAlogrithm(unsigned char Q, unsigned char M);
-void displayStep(unsigned char A, unsigned char Q, unsigned char Q_N1, unsigned char M, int n);
+void displayStep(unsigned char A, unsigned char Q, unsigned char Q_N1, unsigned char M, int n, int operation, int n_bits);
 
 /*===============================================
 *   FUNCTION    :   MAIN
@@ -52,7 +52,9 @@ void displayStep(unsigned char A, unsigned char Q, unsigned char Q_N1, unsigned 
  *==============================================*/
 void main(void)
 {
-    ALU(0b0111, 0b1100, multiplication);       // 12 + 10 = 22 (Binary: 0000 0000 0001 0110)
+    ALU(0b0111, 0b0010, shift_left);
+    // ALU(0b0111, 0b1100, multiplication);       // 12 + 10 = 22 (Binary: 0000 0000 0001 0110)
+    // ALU(4, 3, multiplication);
     // ALU(136, 133, addition);            // 136 + 133 = 269 (Binary: 0000 0001 0000 1101)
     // ALU(255, 255, addition);            // 255 + 255 = 510 (Binary: 0000 0011 1111 1110)
     // ALU(136, 133, addition);            // 136 + 133 = 269 (Binary: 0000 0001 0000 1101)
@@ -144,14 +146,14 @@ int ALU(unsigned char operand1, unsigned char operand2, unsigned char control_si
     {
         // Performing Shift Left
         printf("\nOperation = Shift Left");
-        ACC = operand1 << 1;
+        ACC = operand1 << operand2;
         printf("\nACC = "); printBin(ACC, 16);
     }
     else if(control_signal == shift_right)
     {
         // Performing Shift Right
         printf("\nOperation = Shift Right");
-        ACC = operand1 >> 1;
+        ACC = operand1 >> operand2;
         printf("\nACC = "); printBin(ACC, 16);
     }
     else
@@ -169,21 +171,41 @@ int ALU(unsigned char operand1, unsigned char operand2, unsigned char control_si
 *   RETURNS     :   VOID
  *==============================================*/
 void boothsAlogrithm(unsigned char M, unsigned char Q) {  // Q Multiplier and M Multiplicand
-    int n;
+     int n;
     unsigned char Q_N1 = 0;
     unsigned char A = 0x00;
+    int operation = 3;
+    int n_bits = 4;
     // unsigned char LSB_Q = Q & 0x01;
-    printf("\nA\t\t\tQ\t\t\tQn-1\tM\t    Cycle\n");
-    for(n = 0; n < 8; n++){
-        displayStep(A, Q, Q_N1, M, n);
+    printf("\nA\t\t\tQ\t\t\tQn-1\tM\t    Cycle\tOperation\n");
+    for(n = 0; n < n_bits; n++){
+        displayStep(A, Q, Q_N1, M, n, operation, n_bits);
         unsigned char MSB_A;
         unsigned char LSB_Q = Q & 0x01;
         unsigned char LSB_A = A & 0x01;
         // Check if the LSB of Q and Q_N1 are different
         if(LSB_Q == 1 && Q_N1 == 0)     // 10 Q LSB_Q
+        {
             A = A + twosComp(M);
+            operation = 1;
+        }
         else if(LSB_Q == 0 && Q_N1 == 1) // 01
+        {
             A = A + M;
+            operation = 0 ;
+        }
+        else {
+            operation = 2;
+        }
+        if(operation == 0)
+        {
+            printf("\tA <- A + M");
+        }
+        else if(operation == 1)
+        {
+            printf("\tA <- A - M");
+        }
+        printf("\tArithmetic Shift Right\n");
         MSB_A = A & 0x80; 
         // Shift Right, Add Zero to MSB OF A
         A >>= 1;           // Shift A one bit to the Right
@@ -192,15 +214,70 @@ void boothsAlogrithm(unsigned char M, unsigned char Q) {  // Q Multiplier and M 
         if (MSB_A != 0) A |= 0x80; 
         // Shift Q one bit to the Right
         Q >>= 1;
-        Q |= (LSB_A << 7); // Set the LSB of Q to the LSB of A
+        Q |= (LSB_A << (n_bits - 1)); // Set the LSB of Q to the LSB of A
         Q_N1 = LSB_Q; // Set Q_N1 to the LSB of Q for next cycle
     }
-    displayStep(A, Q, Q_N1, M, 8);
+    displayStep(A, Q, Q_N1, M, n_bits, operation, n_bits);
+    if(operation == 0)
+    {
+        printf("\tA <- A + M");
+    }
+    else if(operation == 1)
+    {
+        printf("\tA <- A - M");
+    }
+    printf("\tArithmetic Shift Right\n");
     // Lastly we merge A and Q to get the result and then print the binary of 16 bits
-    unsigned int result = (A << 8) | Q;
+    unsigned int result = (A << n_bits) | Q;
     printf("ACC = ");
     printBin(result, 16);
+
+
+    // int n;
+    // unsigned char Q_N1 = 0;
+    // unsigned char A = 0x00;
+    // int operation = 3;
+    // int n_bits = 8;
+    // // unsigned char LSB_Q = Q & 0x01;
+    // printf("\nA\t\t\tQ\t\t\tQn-1\tM\t    Cycle\n");
+    // for(n = 0; n < n_bits; n++){
+    //     displayStep(A, Q, Q_N1, M, n, operation, n_bits);
+    //     unsigned char MSB_A;
+    //     unsigned char LSB_Q = Q & 0x01;
+    //     unsigned char LSB_A = A & 0x01;
+    //     // Check if the LSB of Q and Q_N1 are different
+    //     if(LSB_Q == 1 && Q_N1 == 0)     // 10 Q LSB_Q
+    //     {
+    //         A = A + twosComp(M);
+    //         operation = 1;
+    //     }
+    //     else if(LSB_Q == 0 && Q_N1 == 1) // 01
+    //     {
+    //         A = A + M;
+    //         operation = 0 ;
+    //     }
+    //     else {
+    //         operation = 2;
+    //     }
+    //     MSB_A = A & 0x80; 
+    //     // Shift Right, Add Zero to MSB OF A
+    //     A >>= 1;           // Shift A one bit to the Right
+    //     A &= 0x7F;         // Clear the MSB of A
+    //     // Set the MSB of A based on the saved MSB_A
+    //     if (MSB_A != 0) A |= 0x80; 
+    //     // Shift Q one bit to the Right
+    //     Q >>= 1;
+    //     Q |= (LSB_A << 7); // Set the LSB of Q to the LSB of A
+    //     Q_N1 = LSB_Q; // Set Q_N1 to the LSB of Q for next cycle
+    // }
+    // displayStep(A, Q, Q_N1, M, n_bits, operation, n_bits);
+    // // Lastly we merge A and Q to get the result and then print the binary of 16 bits
+    // unsigned int result = (A << n_bits) | Q;
+    // printf("ACC = ");
+    // printBin(result, 16);
 }
+
+
 
 /*===============================================
 *   FUNCTION    :   displayStep
@@ -208,18 +285,27 @@ void boothsAlogrithm(unsigned char M, unsigned char Q) {  // Q Multiplier and M 
 *   ARGUMENTS   :   UNSIGNED CHAR, UNSIGNED CHAR, UNSIGNED CHAR, UNSIGNED CHAR, INT
 *   RETURNS     :   VOID
  *==============================================*/
-void displayStep(unsigned char A, unsigned char Q, unsigned char Q_N1, unsigned char M, int n)
+void displayStep(unsigned char A, unsigned char Q, unsigned char Q_N1, unsigned char M, int n, int operation, int n_bits)
 {
-    printBin(A, 8);
-    printf("\t");
-    printBin(Q, 8);
-    printf("\t");
+    printBin(A, 4);
+    printf("\t\t");
+    printBin(Q, 4);
+    printf("\t\t");
     printBin(Q_N1, 1);
-    printf("\t");
-    printBin(M, 8);
-    printf("\t");
+    printf("\t\t");
+    printBin(M, 4);
+    printf("\t\t");
     printf("%d", n);
-    printf("\n");
+    // if(operation == 0)
+    // {
+    //     printf("\tA <- A + M");
+    // }
+    // else if(operation == 1)
+    // {
+    //     printf("\tA <- A - M");
+    // }
+    // printf("\tArithmetic Shift Right");
+    // printf("\n");
 }
 
 /*===============================================

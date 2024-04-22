@@ -1,18 +1,13 @@
  /*======================================================================================================
-* FILE        : Cadungog_Comendador_Lucenara_Ratificar_ALU-CU.c
+* FILE        : Cadungog_Comendador_Lucenara_Ratificar_CPU-MEM.c
 * AUTHOR      : Josh Ratificar (Hardware Lead)
 *               Ben Cesar Cadungog (Software Lead)
 *               Jeddah Laine Luceñara  (Research Lead)
 *               Harold Marvin Comendador (Documentation Lead)
-* DESCRIPTION : This program simulates the Arithmetic Logic Unit (ALU) combined with the Control Unit.
+* DESCRIPTION : This program simulates CPU and Memory operations. 
 * COPYRIGHT   : 17 March, 2024
 * REVISION HISTORY:
-*   24 February, 2024: V1.0 - File Created
-*   25 February, 2024: V1.1 - Added ALU function, Added Booth's Algorithm, Added setFlags function
-*   28 February, 2024: V1.2 - Revised Declaration from ACC being local to global as instructed in the LE. Added more Arithemetic Cases.
-*   17 March, 2024: V2.0 - Renamed ALU to ALUVer2, Addressed logical errors in comments.
-*   1 April, 2024: V3.0 - Added Control Unit Functionality with ALU, and addressed techincal errors.
-*                         As well implementedthe busses and initMemory.
+*   20 April, 2024: V1.0 - File Created
 ======================================================================================================*/
 /*=============================================== 
  *   HEADER FILES
@@ -37,7 +32,7 @@
 #define WACC 0x09
 #define RACC 0x0B
 
-unsigned int FLAGS = 0x00; // Flags
+
 unsigned char SF, CF, ZF, OF; // Flags
 unsigned char CONTROL = 0;
 
@@ -100,6 +95,7 @@ int CU()
     bool Fetch, IO, Memory, Increment;
     // Instruction Code 4 | 3 | 2 | 1 | 0
     // Instruction code is 5 bits wide...
+    int row, col, cs;
     PC = 0x000;
 
     MainMemory();
@@ -131,6 +127,11 @@ int CU()
 
         if(Fetch == 1)
         {
+            /* decoding address data */
+            col = ADDR & 0x001F;
+            row = (ADDR >> 5) & 0x001F;
+            cs = ADDR >> 10; 
+
             IR = (int) BUS; // load instruction to IR
             IR = IR << 8; // shift IR 8 bits to the left
             PC++; // points to the lower byte
@@ -323,67 +324,66 @@ int CU()
             printf("MBR \t\t\t: 0x%02x \n", MBR);
             displayData(PC, MAR, IOAR, IOBR, IR, inst_code, CONTROL, BUS, ADDR, operand); // New Changes to displayData call
         } 
-        else if(inst_code==0x11) //BRLT
+        else if(inst_code == 0x11) // BRLT // NEEDS TO BE IMPLEMENTED
         {
-            // ALU
-            Fetch = 0; Memory = 1; IO = 0; // operation is bus access through MBR
-            /* Setting global control signals */
-            CONTROL = inst_code; // setup the Control Signals
-            IOM = 0; RW = 0; OE = 0; // operation neither "write" or “read”
-            CONTROL = subtraction; // setup the Control Signals
-            if(Memory)
-                BUS = MBR; // load data on BUS to MBR (ACC high byte
-            ALU(); 
-            if ((FLAGS & SF) == SF)
-                PC = operand;
-            printf("Instruction \t: ADD \n");
-            printf("Adding ACC and BUS....\n");
-            displayData(PC, MAR, IOAR, IOBR, IR, inst_code, CONTROL, BUS, ADDR, operand); // New Changes to displayData call
-
-        }
-        else if(inst_code==0x12) //BRGT
-        {
-            Fetch = 0; Memory = 1; IO = 0; // operation is bus access throug
+            Fetch = 0;
+            Memory = 1;
+            IO = 0;
             CONTROL = inst_code;
-
             if(Memory)
-                BUS = MBR; // load data on BUS to MBR (ACC high byte    
+                BUS = MBR;
             ALU();
-            if ((FLAGS & SF) == 0)
-                PC = operand;
-            printf("Instruction \t: SUBTRACT \n");
-            printf("Subtracting ACC and BUS....\n");
+            printf("Instruction \t: BRLT \n");
+            printf("Swap data of MBR and IOBR....\n");
+            printf("IOBR \t\t\t: 0x%02x \n", IOBR);
+            printf("MBR \t\t\t: 0x%02x \n", MBR);
             displayData(PC, MAR, IOAR, IOBR, IR, inst_code, CONTROL, BUS, ADDR, operand); // New Changes to displayData call
         }
-        else if(inst_code==0x13) //BRNE
+        else if(inst_code == 0x12) // BRGT // NEEDS TO BE IMPLEMENTED 
         {
-            Fetch = 0; Memory = 1; IO = 0; // operation is bus access through MBR
+            Fetch = 0;
+            Memory = 1;
+            IO = 0;
             CONTROL = inst_code;
-
             if(Memory)
-                BUS = MBR; // load data on BUS to MBR (ACC high byte
+                BUS = MBR;
             ALU();
-             if ((FLAGS & ZF) == 0)
-                PC = operand;
-            printf("Instruction \t: MULTIPLY \n");
-            printf("Multiplying ACC and BUS....\n");
+            printf("Instruction \t: BRGT \n");
+            printf("Swap data of MBR and IOBR....\n");
+            printf("IOBR \t\t\t: 0x%02x \n", IOBR);
+            printf("MBR \t\t\t: 0x%02x \n", MBR);
             displayData(PC, MAR, IOAR, IOBR, IR, inst_code, CONTROL, BUS, ADDR, operand); // New Changes to displayData call
         }
-        else if (inst_code==0x14) //BRE
+        else if (inst_code == 0x13) // BNRE // NEEDS TO BE IMPLEMENTED
         {
-            Fetch = 0; Memory = 1; IO = 0; // operation is bus access through MBR
+            Fetch = 0;
+            Memory = 1;
+            IO = 0;
             CONTROL = inst_code;
-
             if(Memory)
-                BUS = MBR; // load data on BUS to MBR (ACC high byte
+                BUS = MBR;
             ALU();
-            if ((FLAGS & ZF) == ZF)
-                PC = operand;
-            printf("Instruction \t: ADD \n");
-            printf("Adding ACC and BUS....\n");
+            printf("Instruction \t: BNRE \n");
+            printf("Swap data of MBR and IOBR....\n");
+            printf("IOBR \t\t\t: 0x%02x \n", IOBR);
+            printf("MBR \t\t\t: 0x%02x \n", MBR);
             displayData(PC, MAR, IOAR, IOBR, IR, inst_code, CONTROL, BUS, ADDR, operand); // New Changes to displayData call
         }
-        
+        else if(inst_code == 0x14) // BRE   // NEEDS TO BE IMPLEMENTED
+        {
+            Fetch = 0;
+            Memory = 1;
+            IO = 0;
+            CONTROL = inst_code;
+            if(Memory)
+                BUS = MBR;
+            ALU();
+            printf("Instruction \t: BRE \n");
+            printf("Swap data of MBR and IOBR....\n");
+            printf("IOBR \t\t\t: 0x%02x \n", IOBR);
+            printf("MBR \t\t\t: 0x%02x \n", MBR);
+            displayData(PC, MAR, IOAR, IOBR, IR, inst_code, CONTROL, BUS, ADDR, operand); // New Changes to displayData call
+        }
         else if(inst_code==0x15) // Shift the value of ACC 1 bit to the right, CF will
         {                        // receive LSB of ACC
              // ALU
@@ -521,13 +521,14 @@ int CU()
         }
         else if (inst_code==0x1F) // End of Program
         {
+            printf("\n\nBitch we are leaving right now \n\n");
+            getch();
             result = 1;
             printf("Instruction \t: EOP \n");
             printf("Program Ended....\n");
             displayData(PC, MAR, IOAR, IOBR, IR, inst_code, CONTROL, BUS, ADDR, operand); // New Changes to displayData call
             // Added IR, inst_code, control, bus, addr
             isEOP = true;
-            getchar();
             break;
         }
     }
@@ -830,15 +831,12 @@ void IOMemory(void)
  *==============================================*/
 int ALU(void)
 {
-    printf("\n");
     /* setting ACC and flags to initial values */
     static unsigned int ACC = 0x0000; 
     unsigned char temp_ACC = 0x0000;
-    unsigned char temp_OP1, temp_OP2, temp_prod;
-    unsigned int n = 0, Q_n1 = 0;
+    unsigned char temp_OP2;
     SF=0, CF=0, ZF=0, OF=0;
 
-    // printf("\nACC = "); printBin(ACC, 16);
     if(CONTROL == subtraction || CONTROL == addition) // Checking if addition or subtraction
     {
         if(CONTROL == subtraction)
@@ -852,7 +850,7 @@ int ALU(void)
             temp_OP2 = BUS;
             printf("\nADDITION <--- ALU\n");
         }
-        temp_ACC = (0x00FF & ACC) + temp_OP2; 
+        temp_ACC = (int) ACC + temp_OP2; 
         ACC = (unsigned char) temp_ACC;
     }
     else if(CONTROL == multiplication) // Multiplication 
@@ -863,33 +861,24 @@ int ALU(void)
     else if(CONTROL == AND)
     {
         // Performing AND
-        ACC = ACC & BUS;
-        if (ACC == 0)
-            FLAGS = FLAGS | ZF;
-        else
-            FLAGS = FLAGS & ~ZF;
+        temp_OP2 = BUS;
+        ACC = ACC & temp_OP2;
         printf("\nACC = "); printBin(ACC, 16);
         printf("\nAND <--- ALU\n");
     }
     else if(CONTROL == OR) 
     {
         // Performing OR
-        ACC = ACC | BUS;
-        if (ACC == 0)
-            FLAGS = FLAGS | ZF;
-        else
-            FLAGS = FLAGS & ~ZF;
+        temp_OP2 = BUS;
+        ACC = ACC | temp_OP2;
         printf("\nACC = "); printBin(ACC, 16);
         printf("\nOR <--- ALU\n");
     }
     else if(CONTROL == NOT)
     {
         // Performing NOT
+        temp_OP2 = BUS;
         ACC = ~ACC;
-        if (ACC == 0)
-            FLAGS = FLAGS | ZF;
-        else
-            FLAGS = FLAGS & ~ZF;
         printf("\nACC = "); printBin(ACC, 16);
         printf("\nNOT <--- ALU\n");
     }
@@ -898,48 +887,36 @@ int ALU(void)
         // Performing XOR
         temp_OP2 = BUS;
         ACC = ACC ^ temp_OP2;
-        if (ACC == 0)
-            FLAGS = FLAGS | ZF;
-        else
-            FLAGS = FLAGS & ~ZF;
         printf("\nACC = "); printBin(ACC, 16);
         printf("\nXOR <--- ALU\n");
     }
     else if(CONTROL == shift_left)
     {
         // Performing Shift Left
-        FLAGS = FLAGS & ~CF;    //Clearing CF Flag
-        if ((ACC & 0x8000) == 0x8000)
-            FLAGS = FLAGS | CF;     //Set CF Flag
-        else 
-            FLAGS = FLAGS & ~CF; //Clear CF Flag
-        ACC = ACC << 1;
+        temp_OP2 = BUS;
+        ACC = ACC << temp_OP2;
         printf("\nACC = "); printBin(ACC, 16);
         printf("\nSHIFT LEFT <--- ALU\n");
     }
     else if(CONTROL == shift_right)
     {
         // Performing Shift Right
-        FLAGS = FLAGS & ~CF; 
-        if (0x01 & ACC) 
-            FLAGS = FLAGS | CF; 
-        else
-            FLAGS = FLAGS & ~CF; 
-        ACC = ACC >> 1;       
+        temp_OP2 = BUS;
+        ACC = ACC >> temp_OP2;
         printf("\nACC = "); printBin(ACC, 16);
         printf("\nSHIFT RIGHT <--- ALU\n");
     }
     else if(CONTROL == WACC)
     {
         // Write data on BUS to ACC
-        ACC = (ACC & 0xFF00) | BUS;
+        ACC = BUS;
         printf("\nACC = "); printBin(ACC, 16);
         printf("\nWACC <--- ALU\n");
     }
     else if(CONTROL == RACC)
     {
         // Move ACC data to BUS
-        BUS = ACC & 0x00FF;
+        BUS = ACC;
         printf("\nACC = "); printBin(ACC, 16);
         printf("\nRACC <--- ALU\n");
     }
@@ -948,7 +925,6 @@ int ALU(void)
         printf("\nInvalid Control Signal");
     }
     printf("\nACC = "); printBin(ACC, 16);
-    printf("\n");
     setFlags(ACC);
 }
 
@@ -1020,59 +996,19 @@ void displayStep(unsigned char A, unsigned char Q, unsigned char Q_N1, unsigned 
  *==============================================*/
 void setFlags(unsigned int ACC)
 {    
-     unsigned char tmp_ACC = ACC;
-    if (CONTROL == addition || CONTROL == subtraction){
-        //check if zero flag
-        if (ACC == 0x0000)
-            FLAGS = FLAGS | ZF;
-        else
-            FLAGS = FLAGS & ~ZF;
-
-        //check if sign flag
-        if ((ACC & 0x8000) == 0x8000)
-            FLAGS = FLAGS | SF;
-        else
-            FLAGS = FLAGS & ~SF;
-        
-        //check if overflow flag
-        if (ACC > 0x7FFF)
-            FLAGS = FLAGS | OF;
-        else
-            FLAGS = FLAGS & ~OF;
-        
-        //check if carry flag
-        if (ACC > 0xFFFF)
-            FLAGS = FLAGS | CF;
-        else
-            FLAGS = FLAGS & ~CF;
-        
-        
-    } else if (CONTROL == multiplication){
-
-        //check zero flag
-        if (ACC == 0x0000)
-            FLAGS = FLAGS | ZF;
-        else
-            FLAGS = FLAGS & ~ZF;
-        
-        //check sign flag
-        if ((ACC & 0x8000) == 0x8000)
-            FLAGS = FLAGS | SF;
-        else
-            FLAGS = FLAGS & ~SF;
-        
-        //check overflow flag
-        if (ACC > 0xFF)
-            FLAGS = FLAGS | OF;
-        else
-            FLAGS = FLAGS & ~OF;
-        
-        //check carry flag
-        if (ACC > 0xFF)
-            FLAGS = FLAGS | CF;
-        else
-            FLAGS = FLAGS & ~CF;
-    }
+    // Check if ACC is zero
+    if ((ACC & 0x00FF)  == 0x0000) ZF = 1; 
+    else ZF = 0; 
+    // Check if ACC is negative (MSB is 1)
+    if (ACC & 0x0080) SF = 1; 
+    else SF = 0; 
+    // Check if there is an overflow
+    if (ACC > 0x007F) OF = 1;
+    else OF = 0; 
+    // Check if there is a carry
+    if (ACC > 0xFF && ZF == 0) CF = 1; 
+    else CF = 0; 
+    printf("\nZF = %d, CF = %d, SF = %d, OF = %d", ZF, CF, SF, OF);
 }
 
 /*===============================================
